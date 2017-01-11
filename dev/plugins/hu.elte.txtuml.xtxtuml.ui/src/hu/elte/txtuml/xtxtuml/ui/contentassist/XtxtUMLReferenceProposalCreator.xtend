@@ -6,7 +6,6 @@ import com.google.inject.Inject
 import hu.elte.txtuml.api.model.DataType
 import hu.elte.txtuml.api.model.ModelClass
 import hu.elte.txtuml.api.model.Signal
-import hu.elte.txtuml.api.model.external.ExternalType
 import hu.elte.txtuml.xtxtuml.common.XtxtUMLReferenceProposalScopeProvider
 import hu.elte.txtuml.xtxtuml.common.XtxtUMLUtils
 import hu.elte.txtuml.xtxtuml.xtxtUML.TUAssociation
@@ -44,7 +43,6 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XbasePackage
 import org.eclipse.xtext.xbase.scoping.batch.InstanceFeatureDescription
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
-import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReferenceFactory
 import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
@@ -261,14 +259,10 @@ class XtxtUMLReferenceProposalCreator extends XbaseReferenceProposalCreator {
 			// be difficult to achieve starting from a plain JvmType
 			proposedObj instanceof JvmGenericType && (proposedObj as JvmGenericType).superTypes.exists [
 				val typeRef = toLightweightTypeReference;
-				typeRef.isSubtypeOf(DataType) || typeRef.isInterface && typeRef.isSubtypeOf(ExternalType) ||
-					isClassAllowed && typeRef.isSubtypeOf(ModelClass) || isSignalAllowed && typeRef.isSubtypeOf(Signal)
+				typeRef.isSubtypeOf(DataType) || isClassAllowed && typeRef.isSubtypeOf(ModelClass) ||
+					isSignalAllowed && typeRef.isSubtypeOf(Signal)
 			]
 		}
-	}
-
-	def private isInterface(LightweightTypeReference typeRef) {
-		typeRef.type instanceof JvmGenericType && (typeRef.type as JvmGenericType).isInterface();
 	}
 
 	def private toLightweightTypeReference(JvmTypeReference typeRef) {

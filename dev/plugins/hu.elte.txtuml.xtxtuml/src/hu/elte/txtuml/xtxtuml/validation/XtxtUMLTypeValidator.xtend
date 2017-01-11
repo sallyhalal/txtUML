@@ -1,15 +1,15 @@
 package hu.elte.txtuml.xtxtuml.validation;
 
 import hu.elte.txtuml.api.model.DataType
+import hu.elte.txtuml.api.model.External
 import hu.elte.txtuml.api.model.ModelClass
 import hu.elte.txtuml.api.model.ModelClass.Port
 import hu.elte.txtuml.api.model.Signal
-import hu.elte.txtuml.api.model.external.ExternalType
 import hu.elte.txtuml.xtxtuml.xtxtUML.TUAttributeOrOperationDeclarationPrefix
 import hu.elte.txtuml.xtxtuml.xtxtUML.TUClassPropertyAccessExpression
-import hu.elte.txtuml.xtxtuml.xtxtUML.TUDeleteObjectExpression
+import hu.elte.txtuml.xtxtuml.xtxtUML.TUConstructor
+import hu.elte.txtuml.xtxtuml.xtxtUML.TUExternality
 import hu.elte.txtuml.xtxtuml.xtxtUML.TUOperation
-import hu.elte.txtuml.xtxtuml.xtxtUML.TUSendSignalExpression
 import hu.elte.txtuml.xtxtuml.xtxtUML.TUSignalAttribute
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -33,7 +33,9 @@ class XtxtUMLTypeValidator extends XtxtUMLUniquenessValidator {
 				typeRef.isAllowedAttributeType(false)
 			}
 			TUAttributeOrOperationDeclarationPrefix: {
-				if (container.eContainer instanceof TUOperation) {
+				if (container.externality == TUExternality.EXTERNAL) {
+					true
+				} else if (container.eContainer instanceof TUOperation) {
 					typeRef.isAllowedParameterType(true)
 				} else {
 					isAttribute = true;
@@ -41,6 +43,17 @@ class XtxtUMLTypeValidator extends XtxtUMLUniquenessValidator {
 				}
 			}
 			JvmFormalParameter: {
+				val op = container.eContainer
+				if (op instanceof TUOperation) {
+					if (op.prefix.externality == TUExternality.EXTERNAL) {
+						return true
+					}
+				}
+				if (op instanceof TUConstructor) {
+					if (op.externality == TUExternality.EXTERNAL) {
+						return true
+					}
+				}
 				typeRef.isAllowedParameterType(false)
 			}
 			// TODO check types inside XBlockExpression
@@ -51,9 +64,9 @@ class XtxtUMLTypeValidator extends XtxtUMLUniquenessValidator {
 		if (!isValid) {
 			error(
 				if (isAttribute) {
-					"Invalid type. Only boolean, double, int, String, model data types and external interfaces are allowed."
+					"Invalid type. Only boolean, double, int, String and non-external model data types are allowed."
 				} else {
-					"Invalid type. Only boolean, double, int, String, model data types, external interfaces and model class types are allowed."
+					"Invalid type. Only boolean, double, int, String and non-external model data types, signals and model class types are allowed."
 				}, typeRef, TypesPackage.Literals.JVM_PARAMETERIZED_TYPE_REFERENCE__TYPE, INVALID_TYPE);
 		}
 	}
@@ -84,12 +97,14 @@ class XtxtUMLTypeValidator extends XtxtUMLUniquenessValidator {
 	}
 
 	def protected isAllowedParameterType(JvmTypeReference typeRef, boolean isVoidAllowed) {
-		isAllowedAttributeType(typeRef, isVoidAllowed) || typeRef.isConformantWith(ModelClass)
+		isAllowedAttributeType(typeRef, isVoidAllowed) ||
+		((typeRef.isConformantWith(ModelClass) || typeRef.isConformantWith(Signal)) &&
+			!typeRef.isConformantWith(External)
+		)
 	}
 
 	def protected isAllowedAttributeType(JvmTypeReference typeRef, boolean isVoidAllowed) {
-		isAllowedBasicType(typeRef, isVoidAllowed) || typeRef.isConformantWith(DataType) ||
-			typeRef.type.isInterface && typeRef.isConformantWith(ExternalType)
+		isAllowedBasicType(typeRef, isVoidAllowed) || (typeRef.isConformantWith(DataType) && !typeRef.isConformantWith(External))
 	}
 
 	def protected isAllowedBasicType(JvmTypeReference typeRef, boolean isVoidAllowed) {

@@ -80,6 +80,11 @@ class XtxtUMLIssueCodes {
 	public static val INCOMPATIBLE_PORTS = ISSUE_CODE_PREFIX + "incompatible_ports";
 	public static val NOT_OWNED_PORT = ISSUE_CODE_PREFIX + "not_owned_port";
 
+	// Attribute-related issues
+
+	public static val ATTRIBUTE_IS_STATIC = ISSUE_CODE_PREFIX + "attribute_is_static";
+	public static val ATTRIBUTE_HAS_EXTERNAL_BODY = ISSUE_CODE_PREFIX + "attribute_has_external_body";
+
 	// UI-related issues
 	
 	public static val WRONG_PACKAGE = ISSUE_CODE_PREFIX + "wrong_package";

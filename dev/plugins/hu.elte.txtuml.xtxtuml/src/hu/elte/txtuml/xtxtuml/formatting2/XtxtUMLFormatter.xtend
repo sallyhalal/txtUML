@@ -127,6 +127,7 @@ class XtxtUMLFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(TUConstructor it, extension IFormattableDocument document) {
+		regionFor.feature(TU_CONSTRUCTOR__EXTERNALITY).append[oneSpace];
 		regionFor.feature(TU_CONSTRUCTOR__VISIBILITY).append[oneSpace];
 		regionFor.keyword('(').surround[noSpace];
 		regionFor.keyword(')').prepend[noSpace].append[oneSpace];
@@ -139,7 +140,9 @@ class XtxtUMLFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(TUAttributeOrOperationDeclarationPrefix it, extension IFormattableDocument document) {
+		regionFor.feature(TU_ATTRIBUTE_OR_OPERATION_DECLARATION_PREFIX__EXTERNALITY).append[oneSpace];
 		regionFor.feature(TU_ATTRIBUTE_OR_OPERATION_DECLARATION_PREFIX__VISIBILITY).append[oneSpace];
+		regionFor.feature(TU_ATTRIBUTE_OR_OPERATION_DECLARATION_PREFIX__STATIC).append[oneSpace];
 		format(type, document);
 	}
 

@@ -9,6 +9,8 @@ import hu.elte.txtuml.api.model.Composition.HiddenContainer
 import hu.elte.txtuml.api.model.Connector
 import hu.elte.txtuml.api.model.ConnectorBase.One
 import hu.elte.txtuml.api.model.Delegation
+import hu.elte.txtuml.api.model.External
+import hu.elte.txtuml.api.model.ExternalBody
 import hu.elte.txtuml.api.model.From
 import hu.elte.txtuml.api.model.Interface
 import hu.elte.txtuml.api.model.Max
@@ -58,6 +60,7 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import hu.elte.txtuml.xtxtuml.xtxtUML.TUExternality
 
 /**
  * Infers a JVM model equivalent from an XtxtUML resource. If not stated otherwise,
@@ -289,6 +292,18 @@ class XtxtUMLJvmModelInferrer extends AbstractModelInferrer {
 					documentation = ctor.documentation
 				]
 			}
+			
+			switch (ctor.externality) {
+				case EXTERNAL: {
+					annotations += annotationRef(External)
+				}
+				case EXTERNAL_BODY: {
+					annotations += annotationRef(ExternalBody)
+				}
+				case NON_EXTERNAL: {
+					// nothing to do
+				}
+			}
 
 			body = ctor.body
 		]
@@ -298,6 +313,9 @@ class XtxtUMLJvmModelInferrer extends AbstractModelInferrer {
 		attr.toField(attr.name, attr.prefix.type) [
 			documentation = attr.documentation
 			visibility = attr.prefix.visibility.toJvmVisibility
+			if (attr.prefix.externality == TUExternality.EXTERNAL) {
+				annotations += annotationRef(External)
+			}
 		]
 	}
 
@@ -317,6 +335,22 @@ class XtxtUMLJvmModelInferrer extends AbstractModelInferrer {
 				parameters += param.toParameter(param.name, param.parameterType) => [
 					documentation = param.documentation
 				]
+			}
+
+			switch (op.prefix.externality) {
+				case EXTERNAL: {
+					annotations += annotationRef(External)
+				}
+				case EXTERNAL_BODY: {
+					annotations += annotationRef(ExternalBody)
+				}
+				case NON_EXTERNAL: {
+					// nothing to do
+				}
+			}
+
+			if (op.prefix.static) {
+				static = true
 			}
 
 			body = op.body

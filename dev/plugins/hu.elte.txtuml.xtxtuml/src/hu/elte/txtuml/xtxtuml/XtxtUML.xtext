@@ -102,12 +102,12 @@ TUClassProperty :
 ;
 
 TUConstructor :
-	visibility=TUVisibility? name=ValidID '(' (parameters+=FullJvmFormalParameter (',' parameters+=FullJvmFormalParameter)*)? ')'
+	externality=TUExternality? visibility=TUVisibility? name=ValidID '(' (parameters+=FullJvmFormalParameter (',' parameters+=FullJvmFormalParameter)*)? ')'
 		body=XBlockExpression ';'?
 ;
 
 TUAttributeOrOperationDeclarationPrefix :
-	visibility=TUVisibility? type=JvmTypeReference
+	externality=TUExternality? visibility=TUVisibility? static?='static'? type=JvmTypeReference
 ;
 
 TUState :
@@ -203,6 +203,10 @@ TUMultiplicity :
 
 enum TUVisibility :
 	PACKAGE = 'package' | PRIVATE = 'private' | PROTECTED = 'protected' | PUBLIC = 'public'
+;
+
+enum TUExternality : 
+	NON_EXTERNAL = 'non-external' | EXTERNAL = 'external' | EXTERNAL_BODY = 'external-body'
 ;
 
 // Actions
