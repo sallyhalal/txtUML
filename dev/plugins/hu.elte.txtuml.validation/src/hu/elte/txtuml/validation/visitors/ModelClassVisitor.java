@@ -18,7 +18,7 @@ import hu.elte.txtuml.validation.problems.modelclass.InvalidTypeWithClassNotAllo
 
 public class ModelClassVisitor extends VisitorBase {
 
-	public static final Class<?>[] ALLOWED_MODEL_CLASS_DECLARATIONS = new Class<?>[] { TypeDeclaration.class,
+	public static final Class<?>[] ALLOWED_MODEL_CLASS_DECLARATIONS = new Class<?>[] { Javadoc.class, TypeDeclaration.class,
 			FieldDeclaration.class, MethodDeclaration.class, SimpleName.class, SimpleType.class, Modifier.class,
 			Annotation.class, Javadoc.class };
 
@@ -40,6 +40,10 @@ public class ModelClassVisitor extends VisitorBase {
 
 	@Override
 	public boolean visit(FieldDeclaration elem) {
+		if (ElementTypeTeller.isExternal(elem)) {
+			return false;
+		}
+
 		if (!Utils.isAllowedAttributeType(elem.getType(), false)) {
 			collector.report(new InvalidTypeWithClassNotAllowed(collector.getSourceInfo(), elem.getType()));
 		} else {
@@ -50,19 +54,28 @@ public class ModelClassVisitor extends VisitorBase {
 
 	@Override
 	public boolean visit(MethodDeclaration elem) {
+		if (ElementTypeTeller.isExternal(elem)) {
+			return false;
+		}
+
 		if (!elem.isConstructor()) {
 			if (elem.getReturnType2() != null && !Utils.isAllowedParameterType(elem.getReturnType2(), true)) {
 				collector.report(new InvalidTypeWithClassAllowed(collector.getSourceInfo(), elem.getReturnType2()));
 			}
 		}
 
-		Utils.checkModifiers(collector, elem);
+		Utils.checkModifiers(collector, elem, m -> m.isStatic());
 		for (Object obj : elem.parameters()) {
 			SingleVariableDeclaration param = (SingleVariableDeclaration) obj;
 			if (!Utils.isAllowedParameterType(param.getType(), false)) {
 				collector.report(new InvalidTypeWithClassAllowed(collector.getSourceInfo(), param.getType()));
 			}
 		}
+
+		if (ElementTypeTeller.hasExternalBody(elem)) {
+			return false;
+		}
+
 		// TODO: check body
 		return false;
 	}
