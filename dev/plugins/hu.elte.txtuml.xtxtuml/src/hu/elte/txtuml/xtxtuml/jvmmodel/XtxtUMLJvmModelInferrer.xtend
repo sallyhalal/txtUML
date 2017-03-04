@@ -88,22 +88,19 @@ class XtxtUMLJvmModelInferrer extends AbstractModelInferrer {
 			visibility = JvmVisibility.PUBLIC
 
 			members += exec.toMethod("init", Void.TYPE.typeRef) [
-				documentation = exec.documentation
 				visibility = JvmVisibility.PUBLIC
-
 				static = true
 				body = exec.body
 			]
 
 			members += exec.toMethod("main", Void.TYPE.typeRef) [
-				documentation = exec.documentation
 				visibility = JvmVisibility.PUBLIC
 				parameters += exec.toParameter("args", String.typeRef.addArrayTypeDimension)
 				varArgs = true
 
 				static = true
 				body = '''
-					ModelExecutor.create().setTraceLogging(true).run(this::init);
+					hu.elte.txtuml.api.model.execution.ModelExecutor.create().setTraceLogging(false).start(«exec.name»::init);
 				'''
 			]
 		]
